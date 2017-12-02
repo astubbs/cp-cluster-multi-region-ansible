@@ -8,6 +8,8 @@
 
 - import_playbook: kafka.yml
 
+- import_playbook: schema_registery.yml
+
 - import_playbook: c3.yml
 
 - import_playbook: connect.yml

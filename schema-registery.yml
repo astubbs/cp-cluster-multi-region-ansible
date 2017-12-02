@@ -1,0 +1,21 @@
+- name: Start kafka
+  hosts: role=schema-registery
+  roles:
+     - docker
+  tasks:
+    - name: data container
+    docker:
+      name: cp-schema-registry
+      hostname: {{ inventory_hostname }}
+      image: confluentinc/cp-schema-registry:latest
+      state: present
+      # volumes:
+      # - /data
+      ports:
+        - "8081:8081"
+      environment:
+        SCHEMA_REGISTRY_HOST_NAME: {{ inventory_hostname }}
+        SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: '{{ zookeeper hosts }}:2181'
+      extra_hosts: # need to add all hosts
+        host1: "192.168.0.1"
+        host2: "192.168.0.2"
