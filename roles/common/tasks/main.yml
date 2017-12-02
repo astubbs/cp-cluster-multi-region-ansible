@@ -9,6 +9,8 @@
 
 # Base packages, utilities and docker
 - name: Install base packages
+  environment: 
+   DEBIAN_FRONTEND: noninteractive
   become: true
   apt:
     pkg: "{{ item }}"
@@ -23,6 +25,7 @@
     - iotop
     - lynx # text only web browser, super useful
     - vim # need I say more
+    - python-minimal
     #- s3cmd # interacting with s3 buckets
     #- postgresql-client # interacting with postgres databases - NB: isn't server software
     #- golang # for ccat, go experiments and other go util programs
@@ -34,14 +37,66 @@
     #- openjdk-8-jre-headless
     - default-jre
     - python-openssl
+    - krb5-user
 
 - name: Set shell to fish
   user: name=ubuntu shell=/usr/bin/fish #breaks unarchive
-  # user: name=ubuntu shell=/bin/bash
+  #user: name=ubuntu shell=/bin/bash
   become: yes
 
-# - hostname:
-#     name: "{{node_name}}"
+- name: set nice hostname
+  hostname:
+    name: "{{inventory_hostname}}"
+  become: yes
 
-# - command: hostname {{tags['big-nice-name']}} #{{node_name}}
-  # sudo: yes
+# this should be dynamic but is hard coded for poc
+- name: configure krb5.conf default realm
+  replace:
+    destfile: /etc/krb5.conf
+    regexp: 'default_realm = (.*)$'
+    replace: 'default_realm = {{ tags["region"] | upper}}.CONFLUENT.IO'
+  become: yes
+
+- name: configure krb5.conf realm
+  blockinfile:
+    destfile: /etc/krb5.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK CENTRAL REALM"
+    insertafter: '\[realms\]'
+    block: |
+     EU-CENTRAL-1.CONFLUENT.IO = {
+        kdc = as-c3-0-eu-central-1a:88
+        admin_server = as-c3-0-eu-central-1a:750
+        default_domain = eu-central-1.confluent.io
+      }
+  become: yes
+
+# this should be dynamic but is hard coded for poc
+- name: configure krb5.conf alternate realm
+  blockinfile:
+    destfile: /etc/krb5.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK WEST REALM"
+    insertafter: '\[realms\]'
+    # use public dns
+    block: |
+     EU-WEST-1.CONFLUENT.IO = {
+        kdc = {{ hostvars['as-c3-0-eu-west-1a']['public']['dns'] }}:88
+        admin_server = {{ hostvars['as-c3-0-eu-west-1a']['public']['dns'] }}:750
+        default_domain = eu-west-1.confluent.io
+      }
+  become: yes
+
+- name: configure krb5.conf domain
+  blockinfile:
+    destfile: /etc/krb5.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK DOMAIN"
+    insertafter: '\[domain_realm\]'
+    block: |
+      .eu-west-1.confluent.io = EU-WEST-1.CONFLUENT.IO
+      eu-west-1.confluent.io = EU-WEST-1.CONFLUENT.IO
+      .eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
+      eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
+      .eu-west-1.compute.amazonaws.com = EU-WEST-1.CONFLUENT.IO
+      eu-west-1.compute.amazonaws.com = EU-WEST-1.CONFLUENT.IO
+      .eu-central-1.compute.amazonaws.com = EU-CENTRAL-1.CONFLUENT.IO
+      eu-central-1.compute.amazonaws.com = EU-CENTRAL-1.CONFLUENT.IO
+  become: yes

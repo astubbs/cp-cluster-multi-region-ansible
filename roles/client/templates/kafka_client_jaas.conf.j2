@@ -1,5 +1,11 @@
 KafkaClient {
-  org.apache.kafka.common.security.plain.PlainLoginModule required
-  username="perf"
-  password="perf-secret";
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab="/etc/security/keytabs/client-{{ tags["region"] }}.keytab"
+    principal="client/{{inventory_hostname}}@{{ tags["region"] | upper }}.CONFLUENT.IO";
+
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="perf"
+    password="perf-secret";
 };

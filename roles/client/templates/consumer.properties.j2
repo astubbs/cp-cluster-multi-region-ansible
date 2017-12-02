@@ -1,4 +1,5 @@
 interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
 client.id={{ ansible_nodename }}
 security.protocol=SASL_PLAINTEXT
-sasl.mechanism=PLAIN
+sasl.mechanism=GSSAPI
+sasl.kerberos.service.name=client

@@ -12,9 +12,23 @@
     src: consumer.properties.j2
     dest: ~/consumer.properties
 
+- name: create security dir
+  shell: mkdir /etc/security/keytabs
+  ignore_errors: yes
+  become: yes
+
+- name: copy keytabs
+  copy: 
+    src: "{{ role_path }}/../../secrets/{{item}}"
+    dest: /etc/security/keytabs/
+  with_items: 
+    - client-{{ tags["region"] }}.keytab
+  become: yes
+
+
 - name: upload consumer security file
   template:
     src: kafka_client_jaas.conf.j2
     dest: ~/kafka_client_jaas.conf
 
-# bin/kafka-console-consumer --topic aws-proof-1 --new-consumer --bootstrap-server localhost:10092 --consumer-property security.protocol=SASL_PLAINTEXT --consumer-property sasl.mechanism=PLAIN
+# bin/kafka-console-consumer --topic aws-proof-1 --new-consumer --bootstrap-server localhost:10092 --consumer-property security.protocol=SASL_PLAINTEXT --consumer-property sasl.mechanism=GSSAPI,PLAIN

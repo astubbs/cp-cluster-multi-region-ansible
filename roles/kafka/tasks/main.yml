@@ -5,6 +5,26 @@
   shell: killall java
   ignore_errors: yes
 
+- name: Wait for port to disappear # replace with process monitor
+  wait_for:
+    port: "9092"
+    state: absent
+    timeout: 300
+
+- name: create security dir
+  shell: mkdir /etc/security/keytabs
+  ignore_errors: yes
+  become: yes
+
+- name: copy keytabs
+  copy: 
+    src: "{{ role_path }}/../../secrets/{{item}}"
+    dest: /etc/security/keytabs/
+  with_items: 
+    - zookeeper-{{ tags["region"] }}.keytab
+    - broker-{{ tags["region"] }}.keytab
+  become: yes
+
 - name: upload JAAS file
   template:
     src: kafka_server_jaas.conf.j2
@@ -21,8 +41,8 @@
 
 - name: Kafka base settings block
   blockinfile:
-    path: "{{kafka_paths.properties}}"
-    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    dest: cp/confluent-3.3.1/etc/kafka/server.properties
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK BASE-->"
     # insertafter: "<body>"
     content: |
         broker.id={{tags["brokerid"]}}
@@ -58,8 +78,8 @@
     ssl_keystore_location: /home/ubuntu/kafka.server.keystore.jks
     store_password: "{{kafka.store_password}}"
   blockinfile:
-    path: "{{kafka_paths.properties}}"
-    marker: "<!-- {mark} ANSIBLE MANAGED SECURITY BLOCK -->"
+    dest: cp/confluent-3.3.1/etc/kafka/server.properties
+    marker: "<!-- {mark} ANSIBLE MANAGED SECURITY BLOCK SECURITY-->"
     content: |
         # Security settings
         listeners=PLAINTEXT://:{{kafka.ports.plain}},SASL_SSL://:{{kafka.ports.sasl_ssl}},SASL_PLAINTEXT://:{{kafka.ports.sasl_plaintext}},SSL://:{{kafka.ports.ssl}}
@@ -70,11 +90,13 @@
         # GSSAPI (or PLAIN)
         #sasl.mechanism.inter.broker.protocol=PLAIN
         
-        sasl.enabled.mechanisms=PLAIN
+        sasl.enabled.mechanisms=GSSAPI,PLAIN
+        sasl.kerberos.service.name=kafka
+        zookeeper.set.acl=true
 
         ############# Confluent Metrics Reporter Security ##############
         confluent.metrics.reporter.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="broker" password="broker-secret";
-        confluent.metrics.reporter.sasl.mechanism=PLAIN
+        confluent.metrics.reporter.sasl.mechanism=GSSAPI,PLAIN
         confluent.metrics.reporter.security.protocol=PLAINTEXT
         confluent.metrics.reporter.ssl.keystore.location={{kafka.ssl_keystore_location}}
         confluent.metrics.reporter.ssl.keystore.password={{kafka.store_password}}
@@ -92,13 +114,8 @@
 
 - name: run broker
   command: >
-    env KAFKA_OPTS="
-    -Djava.security.auth.login.config=kafka_server_jaas.conf
-    -Dsun.security.krb5.debug=true
-    -Dlog4j.debug
-    -Djavax.net.debug=all"
-    cp/confluent-3.3.1/bin/kafka-server-start -daemon 
-    cp/confluent-3.3.1/etc/kafka/server.properties
+    env KAFKA_OPTS="-Djava.security.auth.login.config=kafka_server_jaas.conf -Dsun.security.krb5.debug=true -Dlog4j.debug -Djavax.net.debug=all"
+    cp/confluent-3.3.1/bin/kafka-server-start -daemon cp/confluent-3.3.1/etc/kafka/server.properties
 
 - name: Wait 300 seconds for port to become open on the host
   wait_for:

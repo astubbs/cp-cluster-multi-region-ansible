@@ -5,8 +5,11 @@
     dest_zookeeper: "{% for node in hostvars[inventory_hostname]['groups']['aws_tag_role_region=zookeepers-eu-central-1'] %}{{node}}:2181{% if not loop.last %},{% endif %}{% endfor %}"
     connector_name: "replication-from-ireland"
     task_count: 10
-    src_security: SASL_PLAINTEXT # SASL_PLAINTEXT, PLAINTEXT
-    src_kafka_port: "{{ kafka.ports.sasl_plaintext }}"
+    src_security: SASL_SSL # SASL_PLAINTEXT, PLAINTEXT
+    src_kafka_port: "{{ kafka.ports.sasl_ssl }}"
+    ssl_truststore_location: /home/ubuntu/kafka.client.truststore.jks
+    ssl_keystore_location: /home/ubuntu/kafka.server.keystore.jks
+    store_password: password123
   tasks:
     # - name: get variables
     #   debug: var={{ public_ipv4 }}
@@ -36,7 +39,6 @@
         method: DELETE
         status_code: 204
       ignore_errors: yes
-
 
     # - name: get variables
     #   debug: var=hostvars[inventory_hostname]['groups']['aws_tag_role_region=zookeepers-eu-west-1']
@@ -72,8 +74,15 @@
             src.kafka.client.id: "kafka-connect-frankfurt-{{ connector_name }}"
             
             src.kafka.security.protocol: "{{ src_security }}"
-            src.kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="connect" password="connect-secret";
-            src.kafka.sasl.mechanism: PLAIN
+            src.kafka.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
+            src.kafka.sasl.mechanism: GSSAPI
+            src.kafka.sasl.kerberos.service.name: kafka
+
+            src.ssl.keystore.location: "{{ssl_keystore_location}}"
+            src.ssl.keystore.password: "{{store_password}}"
+            src.ssl.key.password: "{{store_password}}"
+            src.ssl.truststore.location: "{{ssl_truststore_location}}"
+            src.ssl.truststore.password: "{{store_password}}"
 
             src.kafka.send.buffer.bytes: 2097152
             src.consumer.interceptor.classes: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
@@ -83,13 +92,14 @@
             dest.zookeeper.connect: "{{ dest_zookeeper }}"
 
             # delete?
-            src.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
-            dest.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
+            # src.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
+            # dest.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
             # delete ?
 
-            src.kafka.confluent.monitoring.interceptor.sasl.mechanism: PLAIN
+            src.kafka.confluent.monitoring.interceptor.sasl.mechanism: GSSAPI
+            src.kafka.confluent.monitoring.interceptor.sasl.kerberos.service.name: kafka
             src.kafka.confluent.monitoring.interceptor.security.protocol: "{{ src_security }}"
-            src.kafka.confluent.monitoring.interceptor.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="connect" password="connect-secret";
+            src.kafka.confluent.monitoring.interceptor.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
         body_format: json
 
     # delete

@@ -37,7 +37,7 @@
 
       ########### Control Center security for SASL_PLAINTEXT ###########
       confluent.controlcenter.streams.security.protocol=SASL_PLAINTEXT
-      confluent.controlcenter.streams.sasl.mechanism=PLAIN
+      confluent.controlcenter.streams.sasl.mechanism=GSSAPI,PLAIN
 
 - name: SASL_SSL block
   vars:
@@ -46,31 +46,60 @@
     ssl_truststore_location: /home/ubuntu/kafka.client.truststore.jks
     ssl_keystore_location: /home/ubuntu/kafka.server.keystore.jks
     store_password: password123
+    host: as-broker-0-{{ tags["region"] }}a
   blockinfile:
     marker: "<!-- {mark} ANSIBLE MANAGED SASL_SSL settings-->"
     destfile: /home/ubuntu/cp/confluent-3.3.1/etc/confluent-control-center/control-center.properties
     block: |
       confluent.controlcenter.streams.security.protocol=SASL_SSL
 
-      bootstrap.servers=as-broker-0-{{ tags["region"] }}a:{{broker_port}},as-broker-1-{{ tags["region"] }}b:{{broker_port}},as-broker-2-{{ tags["region"] }}c:{{broker_port}}
+      # bootstrap.servers=as-broker-0-{{ tags["region"] }}a:{{broker_port}},as-broker-1-{{ tags["region"] }}b:{{broker_port}},as-broker-2-{{ tags["region"] }}c:{{broker_port}}
+      # bootstrap.servers={{hostvars['as-broker-0-eu-west-1a']['public']['dns']}}:{{broker_port}}
+      bootstrap.servers={{hostvars[host]['public']['dns']}}:{{broker_port}}
 
       ########### Control Center security for SASL_SSL ###########
-      security.protocol=SSL
-      sasl.mechanism=SASL_SSL
+
+      # delete these
+      security.protocol=SASL_SSL
+      sasl.mechanism=GSSAPI
+      sasl.kerberos.service.name=kafka
       ssl.keystore.location={{ssl_keystore_location}}
       ssl.keystore.password={{store_password}}
       ssl.key.password={{store_password}}
       ssl.truststore.location={{ssl_truststore_location}}
       ssl.truststore.password={{store_password}}
+      # delete these
 
-      confluent.controlcenter.streams.sasl.mechanism=PLAIN
+      confluent.controlcenter.streams.sasl.mechanism=GSSAPI
       confluent.controlcenter.streams.security.protocol=SASL_SSL
+      confluent.controlcenter.streams.sasl.kerberos.service.name=kafka
       confluent.controlcenter.streams.ssl.keystore.location={{ssl_keystore_location}}
       confluent.controlcenter.streams.ssl.keystore.password={{store_password}}
       confluent.controlcenter.streams.ssl.key.password={{store_password}}
       confluent.controlcenter.streams.ssl.truststore.location={{ssl_truststore_location}}
       confluent.controlcenter.streams.ssl.truststore.password={{store_password}}
 
+- name: create security dir
+  shell: mkdir /etc/security/keytabs
+  ignore_errors: yes
+  become: yes
+
+- name: copy keytabs
+  copy: 
+    src: "{{ role_path }}/../../secrets/{{item}}"
+    dest: /etc/security/keytabs/
+  with_items: 
+    - c3-{{ tags["region"] }}.keytab
+    - broker-{{ tags["region"] }}.keytab
+  become: yes
+
+- name: create security dir
+  shell: chmod 644 /etc/security/keytabs/{{item}}
+  ignore_errors: yes
+  with_items: 
+    - c3-{{ tags["region"] }}.keytab
+    - broker-{{ tags["region"] }}.keytab
+  become: yes
 
 - name: upload JAAS file
   template:
@@ -79,8 +108,7 @@
 
 - name: run c3
   command: >
-    env
-    CONTROL_CENTER_OPTS=-Djava.security.auth.login.config=kafka_client_jaas.conf
+    env CONTROL_CENTER_OPTS="-Djava.security.auth.login.config=kafka_client_jaas.conf"
     cp/confluent-3.3.1/bin/control-center-start -daemon cp/confluent-3.3.1/etc/confluent-control-center/control-center.properties
 
 # C3 takes too long to start to block the playbook. As nothing depends on 

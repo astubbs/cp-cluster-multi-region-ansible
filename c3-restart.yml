@@ -1,6 +1,17 @@
-- name: Start C3
+- name: Restart c3
   hosts: role=c3
   tasks:
+
+  - name: killall java
+    shell: killall java
+    ignore_errors: yes
+
+  - name: Wait for port to disappear # replace with process monitor
+    wait_for:
+      port: "9021"
+      state: absent
+      timeout: 300
+
   - name: run c3
     command: >
       env

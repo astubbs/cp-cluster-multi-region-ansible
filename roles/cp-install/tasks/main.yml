@@ -29,7 +29,7 @@
   file: path=/home/ubuntu/cp state=directory
 
 - name: Unarchive source
-  sudo: yes
+  #sudo: yes
   unarchive:
     src="/home/ubuntu/confluent-3.3.1-2.11.tar.gz"
     dest="/home/ubuntu/cp"
@@ -55,3 +55,11 @@
 #   with_items:
 #     - default-jre # should use specific version
 #     # - openjdk-8-jre-headless
+
+- name: tools debug
+  blockinfile:
+    dest: cp/confluent-3.3.1/etc/kafka/tools-log4j.properties
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    # insertafter: "<body>"
+    content: |
+        log4j.rootLogger=DEBUG, stderr

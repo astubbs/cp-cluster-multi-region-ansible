@@ -1,9 +1,14 @@
 ---
-- hosts: connect_va
+- hosts: aws_tag_role=connect
   tasks:
-  - name: DELETE Replicator config
-    run_once: yes
-    uri:
-      url: http://localhost:8083/connectors/performance-replication-ca-va
-      method: DELETE
-      status_code: 204
+    - name: Remove Replicator config
+      vars:
+        connector_name: "replication-from-ireland"
+      run_once: True
+      # when: inventory_hostname == ansible_play_hosts[0]
+      # delegate_to: "{{ hostvars[inventory_hostname]['groups']['aws_tag_role_region=connect-eu-central-1'] | first }}"
+      uri:
+        url: "http://localhost:{{connect_port}}/connectors/{{ connector_name }}"
+        method: DELETE
+        status_code: 204
+      ignore_errors: yes

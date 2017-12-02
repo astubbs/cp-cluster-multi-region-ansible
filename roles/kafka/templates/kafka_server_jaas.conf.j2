@@ -1,22 +1,37 @@
-// Broker
-// The properties username and password in the KafkaServer section are used by the broker to initiate connections to other brokers.
 KafkaServer {
-   org.apache.kafka.common.security.plain.PlainLoginModule required
-   username="{{broker_user_actual.login}}"
-   password="{{broker_user_actual.secret}}"
-   {% for item in broker_users %}
-   user_{{item.login}}="{{item.secret}}"
-   {% endfor %};
-};
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
+    principal="kafka/{{ public['dns'] }}@{{ tags["region"] | upper }}.CONFLUENT.IO";
 
-// Zookeeper
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="{{broker_user_actual.login}}"
+    password="{{broker_user_actual.secret}}"
+    {% for item in broker_users %}
+    user_{{item.login}}="{{item.secret}}"
+    {% endfor %};
+};
 KafkaClient {
-        org.apache.kafka.common.security.plain.PlainLoginModule required
-        username="{{zk_broker.login}}"
-    	password="{{zk_broker.secret}}";
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
+    principal="kafka@{{ tags["region"] | upper }}.CONFLUENT.IO";
+
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="{{zk_broker.login}}"
+    password="{{zk_broker.secret}}";
 };
 Client {
-        org.apache.kafka.common.security.plain.PlainLoginModule required
-        username="{{zk_broker.login}}"
-    	password="{{zk_broker.secret}}";
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
+    principal="kafka@{{ tags["region"] | upper }}.CONFLUENT.IO";
+
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="{{zk_broker.login}}"
+    password="{{zk_broker.secret}}";
 };
+

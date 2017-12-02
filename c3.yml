@@ -1,4 +1,4 @@
-- name: Deploy common role
-  hosts: [aws_tag_role=c3]
+- name: Deploy C3
+  hosts: role=c3
   roles:
      - c3
