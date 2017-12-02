@@ -1,0 +1,176 @@
+# Kerberos packages
+- name: Install kerberos packages
+  environment: 
+   DEBIAN_FRONTEND: noninteractive
+  become: true
+  apt:
+    pkg: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - krb5-kdc
+    - krb5-admin-server
+
+- name: upload kdc conf
+  template:
+    src: kdc.conf
+    dest: /etc/krb5kdc/kdc.conf
+  sudo: yes
+
+
+#krb5.conf should already have been configured in common
+
+- name: create kerberos database
+  shell: |
+    kdb5_util create <<EOF
+    confluent
+    confluent
+    EOF
+  sudo: yes
+  ignore_errors: yes
+
+- name: restart kdc
+  service:
+    name: krb5-kdc
+    state: restarted
+  sudo: yes
+
+- name: create security dir
+  shell: mkdir /etc/security/keytabs
+  ignore_errors: yes
+  sudo: yes
+
+- name: create zookeeper principals
+  shell: >
+    kadmin.local -q "{{item}}";
+  sudo: yes
+  with_items:
+    - addprinc -randkey zookeeper/as-zookeeper-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - addprinc -randkey zookeeper/as-zookeeper-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - addprinc -randkey zookeeper/as-zookeeper-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+    - addprinc -randkey zkclient/as-zookeeper-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - addprinc -randkey zkclient/as-zookeeper-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - addprinc -randkey zkclient/as-zookeeper-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+    - addprinc -randkey zkclient/as-broker-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - addprinc -randkey zkclient/as-broker-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - addprinc -randkey zkclient/as-broker-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+    - addprinc -randkey c3/as-c3-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - addprinc -randkey connect/as-connect-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - addprinc -randkey client/as-performance-consumer-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - addprinc -randkey client/as-performance-producer-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+  ignore_errors: no
+
+- name: create zookeeper keytabs
+  shell: >
+    kadmin.local -q "{{item}}";
+  sudo: yes
+  with_items:
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zookeeper/as-zookeeper-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zookeeper/as-zookeeper-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zookeeper/as-zookeeper-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zkclient/as-zookeeper-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zkclient/as-zookeeper-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zkclient/as-zookeeper-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zkclient/as-broker-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zkclient/as-broker-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper.keytab  zkclient/as-broker-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/c3.keytab  c3/as-c3-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/connect.keytab  connect/as-connect-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/client.keytab  client/as-performance-consumer-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/client.keytab  client/as-performance-producer-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+  ignore_errors: no
+
+- name: fetch zookeeper keytabs 
+  fetch:
+    src: /etc/security/keytabs/{{item}}
+    dest: "{{ role_path }}/../../secrets/"
+    flat: yes
+  with_items: 
+    - zookeeper.keytab
+  sudo: yes
+
+- name: create broker principals
+  shell: >
+    kadmin.local -q "{{item}}";
+  sudo: yes
+  with_items:
+    - addprinc -randkey kafka/as-broker-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - addprinc -randkey kafka/as-broker-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - addprinc -randkey kafka/as-broker-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+  ignore_errors: no
+
+- name: create broker keytabs
+  shell: >
+    kadmin.local -q "{{item}}";
+  sudo: yes
+  with_items:
+    - ktadd -k /etc/security/keytabs/broker.keytab  kafka/as-broker-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker.keytab  kafka/as-broker-1-{{ tags["region"] }}b@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker.keytab  kafka/as-broker-2-{{ tags["region"] }}c@TEST.CONFLUENT.IO
+  ignore_errors: no
+
+- name: fetch broker keytabs 
+  fetch:
+    src: /etc/security/keytabs/{{item}}
+    dest: "{{ role_path }}/../../secrets/"
+    flat: yes
+  with_items: 
+    - broker.keytab
+  sudo: yes
+
+- name: create c3 keytabs
+  shell: >
+    kadmin.local -q "{{item}}";
+  sudo: yes
+  with_items:
+    - ktadd -k /etc/security/keytabs/c3.keytab  c3/as-c3-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+  ignore_errors: no
+
+- name: fetch c3 keytabs 
+  fetch:
+    src: /etc/security/keytabs/{{item}}
+    dest: "{{ role_path }}/../../secrets/"
+    flat: yes
+  with_items: 
+    - c3.keytab
+  sudo: yes
+
+- name: create connect keytabs
+  shell: >
+    kadmin.local -q "{{item}}";
+  sudo: yes
+  with_items:
+    - ktadd -k /etc/security/keytabs/connect.keytab  connect/as-connect-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+  ignore_errors: no
+
+- name: fetch connect keytabs 
+  fetch:
+    src: /etc/security/keytabs/{{item}}
+    dest: "{{ role_path }}/../../secrets/"
+    flat: yes
+  with_items: 
+    - connect.keytab
+  sudo: yes
+
+- name: create client keytabs
+  shell: >
+    kadmin.local -q "{{item}}";
+  sudo: yes
+  with_items:
+    - ktadd -k /etc/security/keytabs/client.keytab  client/as-performance-consumer-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/client.keytab  client/as-performance-producer-0-{{ tags["region"] }}a@TEST.CONFLUENT.IO
+  ignore_errors: no
+
+- name: fetch client keytabs 
+  fetch:
+    src: /etc/security/keytabs/{{item}}
+    dest: "{{ role_path }}/../../secrets/"
+    flat: yes
+  with_items: 
+    - client.keytab
+  sudo: yes
+
+
+
+
+
