@@ -9,6 +9,8 @@
 
 # Base packages, utilities and docker
 - name: Install base packages
+  environment: 
+   DEBIAN_FRONTEND: noninteractive
   become: true
   apt:
     pkg: "{{ item }}"
@@ -22,6 +24,7 @@
     - ntop # better top
     - lynx # text only web browser, super useful
     - vim # need I say more
+    - python-minimal
     #- s3cmd # interacting with s3 buckets
     #- postgresql-client # interacting with postgres databases - NB: isn't server software
     #- golang # for ccat, go experiments and other go util programs
@@ -33,10 +36,11 @@
     #- openjdk-8-jre-headless
     - default-jre
     - python-openssl
+    - krb5-user
 
 - name: Set shell to fish
   user: name=ubuntu shell=/usr/bin/fish #breaks unarchive
-  # user: name=ubuntu shell=/bin/bash
+  #user: name=ubuntu shell=/bin/bash
   become: yes
 
 # - hostname:
@@ -44,3 +48,33 @@
 
 # - command: hostname {{tags['big-nice-name']}} #{{node_name}}
   # sudo: yes
+
+- name: configure krb5.conf default realm
+  replace:
+    destfile: /etc/krb5.conf
+    regexp: 'default_realm = (.*)$'
+    replace: 'default_realm = TEST.CONFLUENT.IO'
+  sudo: yes
+
+- name: configure krb5.conf realm
+  blockinfile:
+    destfile: /etc/krb5.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK REALM"
+    insertafter: '\[realms\]'
+    block: |
+      TEST.CONFLUENT.IO = {
+        kdc = as-c3-0-{{ tags["region"] }}a:88
+        admin_server = as-c3-0-{{ tags["region"] }}a:750
+        default_domain = test.confluent.io
+      }
+  sudo: yes
+
+- name: configure krb5.conf domain
+  blockinfile:
+    destfile: /etc/krb5.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK DOMAIN"
+    insertafter: '\[domain_realm\]'
+    block: |
+      .test.confluent.io = TEST.CONFLUENT.IO
+      test.confluent.io = TEST.CONFLUENT.IO
+  sudo: yes

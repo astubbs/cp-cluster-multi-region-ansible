@@ -71,6 +71,18 @@
       confluent.controlcenter.streams.ssl.truststore.location={{ssl_truststore_location}}
       confluent.controlcenter.streams.ssl.truststore.password={{store_password}}
 
+- name: create security dir
+  shell: mkdir /etc/security/keytabs
+  ignore_errors: yes
+  sudo: yes
+
+- name: copy keytabs
+  copy: 
+    src: "{{ role_path }}/../../secrets/{{item}}"
+    dest: /etc/security/keytabs/
+  with_items: 
+    - c3.keytab
+  sudo: yes
 
 - name: upload JAAS file
   template:
@@ -79,8 +91,7 @@
 
 - name: run c3
   command: >
-    env
-    CONTROL_CENTER_OPTS=-Djava.security.auth.login.config=kafka_client_jaas.conf
+    env CONTROL_CENTER_OPTS=-Djava.security.auth.login.config=kafka_client_jaas.conf
     cp/confluent-3.3.1/bin/control-center-start -daemon cp/confluent-3.3.1/etc/confluent-control-center/control-center.properties
 
 # C3 takes too long to start to block the playbook. As nothing depends on 

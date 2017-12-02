@@ -1,0 +1,4 @@
+- name: Deploy common role
+  hosts: [aws_tag_role=c3]
+  roles:
+     - kdc

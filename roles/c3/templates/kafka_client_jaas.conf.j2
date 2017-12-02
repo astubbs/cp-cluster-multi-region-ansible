@@ -1,5 +1,7 @@
 KafkaClient {
-  org.apache.kafka.common.security.plain.PlainLoginModule required
-  username="c3"
-  password="c3-secret";
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab="/etc/security/keytabs/c3.keytab"
+    principal="c3/{{inventory_hostname}}@TEST.CONFLUENT.IO";
 };

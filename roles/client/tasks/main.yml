@@ -12,6 +12,20 @@
     src: consumer.properties.j2
     dest: ~/consumer.properties
 
+- name: create security dir
+  shell: mkdir /etc/security/keytabs
+  ignore_errors: yes
+  sudo: yes
+
+- name: copy keytabs
+  copy: 
+    src: "{{ role_path }}/../../secrets/{{item}}"
+    dest: /etc/security/keytabs/
+  with_items: 
+    - client.keytab
+  sudo: yes
+
+
 - name: upload consumer security file
   template:
     src: kafka_client_jaas.conf.j2

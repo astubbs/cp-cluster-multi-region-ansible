@@ -23,19 +23,21 @@
       
       # SASL settings for Worker's parent cluster
       security.protocol={{ dest_kafka_security_protocol }}
-      sasl.mechanism=PLAIN
-      sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="connect" password="connect-secret";
+      sasl.mechanism=GSSAPI
+      sasl.kerberos.service.name=kafka
+      sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
 
       #### Connect producer / Source connectors ####
       # SASL_PLAINTEXT / SSL
       # DELETE - src isnt a config in worker configs: src.sasl.mechanism=PLAIN
       # DELETE - src isnt a config in worker configs: src.security.protocol=SASL_PLAINTEXT
 
-      producer.sasl.mechanism=PLAIN
+      producer.sasl.mechanism=GSSAPI
+      producer.sasl.kerberos.service.name=kafka
       producer.security.protocol={{ dest_kafka_security_protocol }}
 
       # producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="USER" password="PASSWORD";
-      producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="connect" password="connect-secret";
+      producer.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
       # producer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
       # producer.ssl.truststore.password=test1234
       # producer.ssl.protocol=TLSv1.2
@@ -46,8 +48,9 @@
       # SASL_PLAINTEXT / SSL
 
       consumer.security.protocol={{ dest_kafka_security_protocol }}
-      consumer.sasl.mechanism=PLAIN
-      consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="connect" password="connect-secret";
+      consumer.sasl.mechanism=GSSAPI
+      consumer.sasl.kerberos.service.name=kafka
+      consumer.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
       # consumer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
       # consumer.ssl.truststore.password=test1234
       # consumer.ssl.protocol=TLSv1.2
@@ -55,9 +58,10 @@
       # consumer.ssl.endpoint.identification.algorithm=HTTPS
 
       #### Monitoring producer interceptor ####
-      producer.confluent.monitoring.interceptor.sasl.mechanism=PLAIN
+      producer.confluent.monitoring.interceptor.sasl.kerberos.service.name=kafka
+      producer.confluent.monitoring.interceptor.sasl.mechanism=GSSAPI
       producer.confluent.monitoring.interceptor.security.protocol={{dest_kafka_security_protocol}}
-      producer.confluent.monitoring.interceptor.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="connect" password="connect-secret";
+      producer.confluent.monitoring.interceptor.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
 
       # interceptor TLS
       # producer.confluent.monitoring.interceptor.ssl.protocol=TLSv1.2
@@ -65,14 +69,28 @@
       # producer.confluent.monitoring.interceptor.ssl.endpoint.identification.algorithm=HTTPS
 
       #### Monitoring consumer interceptor ####
-      consumer.confluent.monitoring.interceptor.sasl.mechanism=PLAIN
+      consumer.confluent.monitoring.interceptor.sasl.kerberos.service.name=kafka
+      consumer.confluent.monitoring.interceptor.sasl.mechanism=GSSAPI
       consumer.confluent.monitoring.interceptor.security.protocol={{dest_kafka_security_protocol}}
-      consumer.confluent.monitoring.interceptor.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="connect" password="connect-secret";
+      consumer.confluent.monitoring.interceptor.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
       
       # interceptor TLS
       # consumer.confluent.monitoring.interceptor.ssl.protocol=TLSv1.2
       # consumer.confluent.monitoring.interceptor.ssl.enabled.protocols=TLSv1.2
       # consumer.confluent.monitoring.interceptor.ssl.endpoint.identification.algorithm=HTTPS
+
+- name: create security dir
+  shell: mkdir /etc/security/keytabs
+  ignore_errors: yes
+  sudo: yes
+
+- name: copy keytabs
+  copy: 
+    src: "{{ role_path }}/../../secrets/{{item}}"
+    dest: /etc/security/keytabs/
+  with_items: 
+    - connect.keytab
+  sudo: yes
 
 - name: upload JAAS file
   template:
@@ -83,7 +101,7 @@
   command: >
     env 
     KAFKA_HEAP_OPTS="-Xms512m -Xmx2g"
-    KAFKA_OPTS="-Djava.security.auth.login.config=kafka_connect_jaas.conf -Dlog4j.debug"
+    KAFKA_OPTS="-Djava.security.auth.login.config=kafka_connect_jaas.conf -Dlog4j.debug -Dsun.security.krb5.debug=true"
     cp/confluent-3.3.1/bin/connect-distributed -daemon cp/confluent-3.3.1/etc/kafka/connect-distributed.properties
 #cp/confluent-3.3.1/bin/connect-distributed cp/confluent-3.3.1/etc/kafka/connect-distributed.properties
 
