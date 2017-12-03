@@ -2,13 +2,13 @@ Server {
     com.sun.security.auth.module.Krb5LoginModule required
     useKeyTab=true
     storeKey=true
-    keyTab="/etc/security/keytabs/zookeeper.keytab"
-    principal="zookeeper/{{inventory_hostname}}@TEST.CONFLUENT.IO";
+    keyTab="/etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab"
+    principal="zookeeper/{{inventory_hostname}}@{{ tags["region"] | upper }}.CONFLUENT.IO";
 };
 Client {
     com.sun.security.auth.module.Krb5LoginModule required
     useKeyTab=true
     storeKey=true
-    keyTab="/etc/security/secrets/zookeeper.keytab"
-    principal="zkclient/{{inventory_hostname}}@TEST.CONFLUENT.IO";
+    keyTab="/etc/security/secrets/zookeeper-{{ tags["region"] }}.keytab"
+    principal="zkclient/{{inventory_hostname}}@-{{ tags["region"] | upper }}.CONFLUENT.IO";
 };
