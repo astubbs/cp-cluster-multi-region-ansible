@@ -11,6 +11,8 @@
     user_connect: connect
     user_c3: c3
     user_anonymous: ANONYMOUS
+    user_kerberos_broker: kafka
+    user_kerberos_client: client
 
   tasks:
     - name: ACLs for admin and broker (all access)
@@ -24,6 +26,7 @@
       with_items:
         - "{{ user_broker }}"
         - "{{ user_admin }}"
+        - "{{ user_kerberos_broker }}"
       ignore_errors: yes
 
     - name: Replicator ACLs (produce/consume access to all topics)
@@ -61,6 +64,7 @@
         - "{{ user_readonly }}"
         - "{{ user_singlereader }}"
         - "{{ user_c3 }}"
+        - "{{ user_kerberos_client }}"
       ignore_errors: yes
 
     - name: Allow access to everyone for performance topics
