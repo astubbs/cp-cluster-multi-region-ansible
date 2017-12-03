@@ -61,13 +61,13 @@
 - name: configure krb5.conf realm
   blockinfile:
     destfile: /etc/krb5.conf
-    marker: "# {mark} ANSIBLE MANAGED BLOCK REALM"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK CENTRAL REALM"
     insertafter: '\[realms\]'
     block: |
      EU-CENTRAL-1.CONFLUENT.IO = {
         kdc = as-c3-0-eu-central-1a:88
-        admin_server = as-c3-0--eu-central-1a:750
-        default_domain = eu-central-1a.confluent.io
+        admin_server = as-c3-0-eu-central-1a:750
+        default_domain = eu-central-1.confluent.io
       }
   sudo: yes
 
@@ -75,13 +75,13 @@
 - name: configure krb5.conf alternate realm
   blockinfile:
     destfile: /etc/krb5.conf
-    marker: "# {mark} ANSIBLE MANAGED BLOCK REALM"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK WEST REALM"
     insertafter: '\[realms\]'
     block: |
      EU-WEST-1.CONFLUENT.IO = {
         kdc = as-c3-0-eu-west-1a:88
-        admin_server = as-c3-0--eu-west-1a:750
-        default_domain = eu-west-1a.confluent.io
+        admin_server = as-c3-0-eu-west-1a:750
+        default_domain = eu-west-1.confluent.io
       }
   sudo: yes
 
@@ -91,6 +91,8 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK DOMAIN"
     insertafter: '\[domain_realm\]'
     block: |
-      .{{ tags["region"] }}.confluent.io = {{ tags["region"] | upper }}.CONFLUENT.IO
-      {{ tags["region"] }}.confluent.io = {{ tags["region"] | upper }}TEST.CONFLUENT.IO
+      .eu-west-1.confluent.io = EU-WEST-1.CONFLUENT.IO
+      eu-west-1.confluent.io = EU-WEST-1.CONFLUENT.IO
+      .eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
+      eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
   sudo: yes

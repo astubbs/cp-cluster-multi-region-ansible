@@ -80,13 +80,13 @@
         # GSSAPI (or PLAIN)
         #sasl.mechanism.inter.broker.protocol=PLAIN
         
-        sasl.enabled.mechanisms=GSSAPI
+        sasl.enabled.mechanisms=GSSAPI,PLAIN
         sasl.kerberos.service.name=kafka
         zookeeper.set.acl=true
 
         ############# Confluent Metrics Reporter Security ##############
         confluent.metrics.reporter.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="broker" password="broker-secret";
-        confluent.metrics.reporter.sasl.mechanism=PLAIN
+        confluent.metrics.reporter.sasl.mechanism=GSSAPI,PLAIN
         confluent.metrics.reporter.security.protocol=PLAINTEXT
         confluent.metrics.reporter.ssl.keystore.location={{kafka.ssl_keystore_location}}
         confluent.metrics.reporter.ssl.keystore.password={{kafka.store_password}}
