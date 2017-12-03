@@ -4,4 +4,8 @@ KafkaClient {
     storeKey=true
     keyTab="/etc/security/keytabs/c3-{{ tags["region"] }}.keytab"
     principal="c3/{{inventory_hostname}}@{{ tags["region"] | upper }}.CONFLUENT.IO";
+
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="c3"
+    password="c3-secret";
 };

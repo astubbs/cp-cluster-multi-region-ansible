@@ -25,7 +25,7 @@
       security.protocol={{ dest_kafka_security_protocol }}
       sasl.mechanism=GSSAPI
       sasl.kerberos.service.name=kafka
-      sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
+      sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab" principal="kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO";
 
       #### Connect producer / Source connectors ####
       # SASL_PLAINTEXT / SSL
@@ -37,7 +37,7 @@
       producer.security.protocol={{ dest_kafka_security_protocol }}
 
       # producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="USER" password="PASSWORD";
-      producer.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
+      producer.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab" principal="kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO";
       # producer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
       # producer.ssl.truststore.password=test1234
       # producer.ssl.protocol=TLSv1.2
@@ -50,7 +50,7 @@
       consumer.security.protocol={{ dest_kafka_security_protocol }}
       consumer.sasl.mechanism=GSSAPI
       consumer.sasl.kerberos.service.name=kafka
-      consumer.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
+      consumer.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab" principal="kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO";
       # consumer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
       # consumer.ssl.truststore.password=test1234
       # consumer.ssl.protocol=TLSv1.2
@@ -58,10 +58,10 @@
       # consumer.ssl.endpoint.identification.algorithm=HTTPS
 
       #### Monitoring producer interceptor ####
-      producer.confluent.monitoring.interceptor.sasl.kerberos.service.name=kafka
+      producer.confluent.monitoring.interceptor.sasl.kerberos.service.name=connect
       producer.confluent.monitoring.interceptor.sasl.mechanism=GSSAPI
       producer.confluent.monitoring.interceptor.security.protocol={{dest_kafka_security_protocol}}
-      producer.confluent.monitoring.interceptor.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
+      producer.confluent.monitoring.interceptor.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab" principal="kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO";
 
       # interceptor TLS
       # producer.confluent.monitoring.interceptor.ssl.protocol=TLSv1.2
@@ -69,10 +69,10 @@
       # producer.confluent.monitoring.interceptor.ssl.endpoint.identification.algorithm=HTTPS
 
       #### Monitoring consumer interceptor ####
-      consumer.confluent.monitoring.interceptor.sasl.kerberos.service.name=kafka
+      consumer.confluent.monitoring.interceptor.sasl.kerberos.service.name=connect
       consumer.confluent.monitoring.interceptor.sasl.mechanism=GSSAPI
       consumer.confluent.monitoring.interceptor.security.protocol={{dest_kafka_security_protocol}}
-      consumer.confluent.monitoring.interceptor.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/connect.keytab" principal="connect/{{inventory_hostname}}@TEST.CONFLUENT.IO";
+      consumer.confluent.monitoring.interceptor.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab" principal="kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO";
       
       # interceptor TLS
       # consumer.confluent.monitoring.interceptor.ssl.protocol=TLSv1.2
@@ -90,6 +90,7 @@
     dest: /etc/security/keytabs/
   with_items: 
     - connect-{{ tags["region"] }}.keytab
+    - broker-{{ tags["region"] }}.keytab
   sudo: yes
 
 - name: upload JAAS file

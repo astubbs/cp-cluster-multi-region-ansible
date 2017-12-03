@@ -2,6 +2,6 @@ KafkaClient {
     com.sun.security.auth.module.Krb5LoginModule required
     useKeyTab=true
     storeKey=true
-    keyTab="/etc/security/keytabs/connect-{{ tags["region"] }}.keytab"
-    principal="connect/{{inventory_hostname}}@{{ tags["region"] | upper }}.CONFLUENT.IO";
+    keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
+    principal="kafka/as-broker-0-eu-central-1a@{{ tags["region"] | upper }}.CONFLUENT.IO";
 };

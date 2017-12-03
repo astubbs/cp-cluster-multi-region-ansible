@@ -4,6 +4,13 @@ KafkaServer {
     storeKey=true
     keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
     principal="kafka/{{inventory_hostname}}@{{ tags["region"] | upper }}.CONFLUENT.IO";
+
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="{{broker_user_actual.login}}"
+    password="{{broker_user_actual.secret}}"
+    {% for item in broker_users %}
+    user_{{item.login}}="{{item.secret}}"
+    {% endfor %};
 };
 KafkaClient {
     com.sun.security.auth.module.Krb5LoginModule required
@@ -11,6 +18,10 @@ KafkaClient {
     storeKey=true
     keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
     principal="kafka/{{inventory_hostname}}@{{ tags["region"] | upper }}.CONFLUENT.IO";
+
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="{{zk_broker.login}}"
+    password="{{zk_broker.secret}}";
 };
 Client {
     com.sun.security.auth.module.Krb5LoginModule required
@@ -18,5 +29,9 @@ Client {
     storeKey=true
     keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
     principal="kafka/{{inventory_hostname}}@{{ tags["region"] | upper }}.CONFLUENT.IO";
+
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="{{zk_broker.login}}"
+    password="{{zk_broker.secret}}";
 };
 
