@@ -53,7 +53,7 @@
   replace:
     destfile: /etc/krb5.conf
     regexp: 'default_realm = (.*)$'
-    replace: 'default_realm = TEST.CONFLUENT.IO'
+    replace: 'default_realm = {{ tags["region"] | upper}}.CONFLUENT.IO'
   sudo: yes
 
 - name: configure krb5.conf realm
@@ -62,7 +62,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK REALM"
     insertafter: '\[realms\]'
     block: |
-      TEST.CONFLUENT.IO = {
+      {{ tags["region"] | upper}}.CONFLUENT.IO = {
         kdc = as-c3-0-{{ tags["region"] }}a:88
         admin_server = as-c3-0-{{ tags["region"] }}a:750
         default_domain = test.confluent.io
@@ -75,6 +75,6 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK DOMAIN"
     insertafter: '\[domain_realm\]'
     block: |
-      .test.confluent.io = TEST.CONFLUENT.IO
-      test.confluent.io = TEST.CONFLUENT.IO
+      .{{ tags["region"] }}.confluent.io = {{ tags["region"] | upper }}.CONFLUENT.IO
+      {{ tags["region"] }}.confluent.io = {{ tags["region"] | upper }}TEST.CONFLUENT.IO
   sudo: yes

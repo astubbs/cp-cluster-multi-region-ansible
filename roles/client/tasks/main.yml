@@ -22,7 +22,7 @@
     src: "{{ role_path }}/../../secrets/{{item}}"
     dest: /etc/security/keytabs/
   with_items: 
-    - client.keytab
+    - client-{{ tags["region"] }}.keytab
   sudo: yes
 
 

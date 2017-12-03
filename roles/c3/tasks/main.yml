@@ -81,7 +81,7 @@
     src: "{{ role_path }}/../../secrets/{{item}}"
     dest: /etc/security/keytabs/
   with_items: 
-    - c3.keytab
+    - c3-{{ tags["region"] }}.keytab
   sudo: yes
 
 - name: upload JAAS file
