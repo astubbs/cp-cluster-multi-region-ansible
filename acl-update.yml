@@ -1,0 +1,27 @@
+- name: Update ACLs
+  hosts: as-broker-0-eu-west-1a
+  vars:
+    zk_hostname: as-zookeeper-0-eu-west-1a
+    user: ANONYMOUS
+    topic: anonymous
+
+  tasks:
+    - name: Add access to topic
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-acls
+        --authorizer-properties zookeeper.connect={{ zk_hostname }}:2181
+        --add --allow-principal User:{{ user }}
+        --topic {{ topic }} --operation Read --operation Write --operation Describe
+      when: op == "allow"
+      ignore_errors: yes
+
+    - name: Remove access to topic
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-acls
+        --authorizer-properties zookeeper.connect={{ zk_hostname }}:2181
+        --remove --allow-principal User:{{ user }}
+        --topic {{ topic }} --operation Read --operation Write --operation Describe
+        --force
+      when: op == "deny"
+      ignore_errors: yes
+
