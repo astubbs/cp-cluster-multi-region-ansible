@@ -1,0 +1,22 @@
+- name: setup users for SASL/SCRAM-SHA256 and SASL/SCRAM-SHA-512
+  hosts: as-broker-0-eu-west-1a
+  tasks:
+    - name: create users
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-configs
+        --zookeeper as-zookeeper-0-eu-west-1a:2181
+        --add-config 'SCRAM-SHA-256=[iterations=8192,password={{ item }}-secret],SCRAM-SHA-512=[password={{ item }}-secret]'
+        --alter --entity-type users --entity-name {{ item }} > scram-{{ item }}.out
+      args:
+        creates: scram-{{ item }}.out
+      with_items:
+        - broker
+        - perf
+        - proof
+        - readonly
+        - singlereader
+        - admin
+        - connect
+        - c3
+      ignore_errors: yes
+

@@ -7,6 +7,10 @@ KafkaServer {
    {% for item in broker_users %}
    user_{{item.login}}="{{item.secret}}"
    {% endfor %};
+
+   org.apache.kafka.common.security.scram.ScramLoginModule required
+   username="{{broker_user_actual.login}}"
+   password="{{broker_user_actual.secret}}";
 };
 
 // Zookeeper
