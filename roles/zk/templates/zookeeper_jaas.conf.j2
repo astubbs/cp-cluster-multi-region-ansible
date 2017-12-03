@@ -9,6 +9,6 @@ Client {
     com.sun.security.auth.module.Krb5LoginModule required
     useKeyTab=true
     storeKey=true
-    keyTab="/etc/security/secrets/zookeeper-{{ tags["region"] }}.keytab"
+    keyTab="/etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab"
     principal="zkclient/{{inventory_hostname}}@-{{ tags["region"] | upper }}.CONFLUENT.IO";
 };
