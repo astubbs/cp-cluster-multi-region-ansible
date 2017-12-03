@@ -49,6 +49,8 @@
 # - command: hostname {{tags['big-nice-name']}} #{{node_name}}
   # sudo: yes
 
+
+# this should be dynamic but is hard coded for poc
 - name: configure krb5.conf default realm
   replace:
     destfile: /etc/krb5.conf
@@ -62,10 +64,24 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK REALM"
     insertafter: '\[realms\]'
     block: |
-      {{ tags["region"] | upper}}.CONFLUENT.IO = {
-        kdc = as-c3-0-{{ tags["region"] }}a:88
-        admin_server = as-c3-0-{{ tags["region"] }}a:750
-        default_domain = test.confluent.io
+     EU-CENTRAL-1.CONFLUENT.IO = {
+        kdc = as-c3-0-eu-central-1a:88
+        admin_server = as-c3-0--eu-central-1a:750
+        default_domain = eu-central-1a.confluent.io
+      }
+  sudo: yes
+
+# this should be dynamic but is hard coded for poc
+- name: configure krb5.conf alternate realm
+  blockinfile:
+    destfile: /etc/krb5.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK REALM"
+    insertafter: '\[realms\]'
+    block: |
+     EU-WEST-1.CONFLUENT.IO = {
+        kdc = as-c3-0-eu-west-1a:88
+        admin_server = as-c3-0--eu-west-1a:750
+        default_domain = eu-west-1a.confluent.io
       }
   sudo: yes
 
