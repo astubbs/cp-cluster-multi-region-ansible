@@ -68,9 +68,9 @@
         # SASL_PLAINTEXT (or SASL_SSL, PLAINTEXT, SSL)
         #security.inter.broker.protocol=SASL_SSL
         # GSSAPI (or PLAIN)
-        #sasl.mechanism.inter.broker.protocol=PLAIN
+        sasl.mechanism.inter.broker.protocol=SCRAM-SHA-512
         
-        sasl.enabled.mechanisms=PLAIN
+        sasl.enabled.mechanisms=PLAIN,SCRAM-SHA-512
 
         ############# Confluent Metrics Reporter Security ##############
         confluent.metrics.reporter.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="broker" password="broker-secret";
