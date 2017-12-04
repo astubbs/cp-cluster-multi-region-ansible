@@ -18,6 +18,6 @@
 
 - import_playbook: performance-consumers.yml
 
-- import_playbook: proof-setup.yml
+# - import_playbook: proof-setup.yml
 
-- import_playbook: proof-redeploy.yml
+# - import_playbook: proof-redeploy.yml
