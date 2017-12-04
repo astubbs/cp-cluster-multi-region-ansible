@@ -95,4 +95,8 @@
       eu-west-1.confluent.io = EU-WEST-1.CONFLUENT.IO
       .eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
       eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
+      .eu-west-1.compute.amazonaws.com = EU-WEST-1.CONFLUENT.IO
+      eu-west-1.compute.amazonaws.com = EU-WEST-1.CONFLUENT.IO
+      .eu-central-1.compute.amazonaws.com = EU-CENTRAL-1.CONFLUENT.IO
+      eu-central-1.compute.amazonaws.com = EU-CENTRAL-1.CONFLUENT.IO
   become: yes
