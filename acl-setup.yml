@@ -1,0 +1,83 @@
+- name: setup ACLs
+  hosts: as-broker-0-eu-west-1a
+  vars:
+    zk_hostname: as-zookeeper-0-eu-west-1a
+    user_broker: broker
+    user_admin: admin
+    user_perf: perf
+    user_proof: proof
+    user_readonly: readonly
+    user_singlereader: singlereader
+    user_connect: connect
+    user_c3: c3
+    user_anonymous: ANONYMOUS
+    user_kerberos_broker: kafka
+    user_kerberos_client: client
+
+  tasks:
+    - name: ACLs for admin and broker (all access)
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-acls
+        --authorizer-properties zookeeper.connect={{ zk_hostname }}:2181
+        --add --allow-principal User:{{ item }}
+        --topic=* --group=* --transactional-id=* --cluster > acl-{{ item }}.out
+      args:
+        creates: acl-{{ item }}.out
+      with_items:
+        - "{{ user_broker }}"
+        - "{{ user_admin }}"
+        - "{{ user_kerberos_broker }}"
+      ignore_errors: yes
+
+    - name: Replicator ACLs (produce/consume access to all topics)
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-acls
+        --authorizer-properties zookeeper.connect={{ zk_hostname }}:2181
+        --add --allow-principal User:{{ user_connect }}
+        --producer --consumer --topic=* --group=* --transactional-id=* > acl-connect.out
+      args:
+        creates: acl-connect.out
+      ignore_errors: yes
+
+    - name: ACLs for anonymous user (produce/consume access to anonymous topic/group) # TODO restrict host
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-acls
+        --authorizer-properties zookeeper.connect={{ zk_hostname }}:2181
+        --add --allow-principal User:{{ user_anonymous }}
+        --topic anonymous --group anonymous --allow-host '*'
+        --producer --consumer > acl-anonymous.out
+      args:
+        creates: acl-anonymous.out
+      ignore_errors: yes
+
+    - name: Other users # TODO: Do we want to restrict these to specified topics?
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-acls
+        --authorizer-properties zookeeper.connect={{ zk_hostname }}:2181
+        --add --allow-principal User:{{ item }}
+        --producer --consumer --topic=* --group=* --transactional-id=* > acl-{{ item }}.out
+      args:
+        creates: acl-{{ item }}.out
+      with_items:
+        - "{{ user_perf }}"
+        - "{{ user_proof }}"
+        - "{{ user_readonly }}"
+        - "{{ user_singlereader }}"
+        - "{{ user_c3 }}"
+        - "{{ user_kerberos_client }}"
+      ignore_errors: yes
+
+    - name: Allow access to everyone for performance topics
+      shell: >
+        cp/confluent-3.3.1/bin/kafka-acls
+        --authorizer-properties zookeeper.connect={{ zk_hostname }}:2181
+        --add --allow-principal User:*
+        --topic={{ item }} > acl-{{ item }}.out
+      args:
+        creates: acl-{{ item }}.out
+      with_items:
+        - "r.slow-producer"
+        - "r.perf-10"
+        - "ireland_r.perf-10"
+      ignore_errors: yes
+

@@ -44,5 +44,5 @@
 # Simply passing the JAAS config doesn't mean it's required
 - name: run zk
   command: >
-    env KAFKA_OPTS="-Djava.security.auth.login.config=zookeeper_jaas.conf -Dlog4j.debug"" 
+    env KAFKA_OPTS="-Djava.security.auth.login.config=zookeeper_jaas.conf -Dlog4j.debug"
     cp/confluent-3.3.1/bin/zookeeper-server-start -daemon cp/confluent-3.3.1/etc/kafka/zookeeper.properties

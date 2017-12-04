@@ -66,9 +66,9 @@
         advertised.listeners=PLAINTEXT://{{ public['dns'] }}:{{kafka.ports.plain}},SASL_SSL://{{ public['dns'] }}:{{kafka.ports.sasl_ssl}},SASL_PLAINTEXT://{{ public['dns'] }}:{{kafka.ports.sasl_plaintext}},SSL://{{ public['dns'] }}:{{kafka.ports.ssl}}
         
         # SASL_PLAINTEXT (or SASL_SSL, PLAINTEXT, SSL)
-        #security.inter.broker.protocol=SASL_SSL
+        security.inter.broker.protocol=SASL_SSL
         # GSSAPI (or PLAIN)
-        #sasl.mechanism.inter.broker.protocol=PLAIN
+        sasl.mechanism.inter.broker.protocol=PLAIN
         
         sasl.enabled.mechanisms=PLAIN
 
@@ -89,6 +89,7 @@
         ssl.truststore.password={{kafka.store_password}}
         ssl.key.password={{kafka.store_password}}
         # super.users=User:CN=kafka.example.com,OU=,O=Confluent,L=London,ST=London,C=GB
+        authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer
 
 - name: run broker
   command: >
