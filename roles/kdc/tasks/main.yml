@@ -85,6 +85,7 @@
     - zookeeper-{{ tags["region"] }}.keytab
   become: yes
 
+#todo these should not be hardcoded
 - name: create broker principals
   shell: >
     kadmin.local -q "{{item}}";
@@ -96,12 +97,31 @@
     - addprinc -randkey kafka@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
+- name: create public broker principals
+  shell: >
+    kadmin.local -q "{{item}}";
+  become: yes
+  with_items:
+    - addprinc -randkey kafka/{{hostvars['as-broker-0-eu-central-1a']['public']['dns']}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey kafka/{{hostvars["as-broker-1-eu-central-1b"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey kafka/{{hostvars["as-broker-2-eu-central-1c"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey kafka/{{hostvars['as-broker-0-eu-west-1a']['public']['dns']}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey kafka/{{hostvars["as-broker-1-eu-west-1b"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey kafka/{{hostvars["as-broker-2-eu-west-1c"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+  ignore_errors: no
+
 - name: create broker keytabs
   shell: >
     kadmin.local -q "{{item}}";
   become: yes
   with_items:
-    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab  kafka@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab kafka@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab kafka/{{hostvars['as-broker-0-eu-central-1a']['public']['dns']}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab kafka/{{hostvars["as-broker-1-eu-central-1b"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab kafka/{{hostvars["as-broker-2-eu-central-1c"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab kafka/{{hostvars['as-broker-0-eu-west-1a']['public']['dns']}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab kafka/{{hostvars["as-broker-1-eu-west-1b"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab kafka/{{hostvars["as-broker-2-eu-west-1c"]['public']['dns'}}@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
 - name: fetch broker keytabs 
