@@ -1,4 +1,4 @@
-- name: Deploy common role
+- name: Restart c3
   hosts: role=c3
   tasks:
 

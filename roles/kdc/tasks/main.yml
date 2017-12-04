@@ -55,9 +55,12 @@
     - addprinc -randkey zkclient/as-broker-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey zkclient/as-broker-2-{{ tags["region"] }}c@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey c3/as-c3-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey c3@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey connect/as-connect-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey connect@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey client/as-performance-consumer-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey client/as-performance-producer-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey client@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
 - name: create zookeeper keytabs
@@ -139,6 +142,7 @@
   become: yes
   with_items:
     - ktadd -k /etc/security/keytabs/c3-{{ tags["region"] }}.keytab  c3/as-c3-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/c3-{{ tags["region"] }}.keytab  c3@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
 - name: fetch c3 keytabs 
@@ -156,6 +160,7 @@
   become: yes
   with_items:
     - ktadd -k /etc/security/keytabs/connect-{{ tags["region"] }}.keytab  connect/as-connect-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/connect-{{ tags["region"] }}.keytab  connect@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
 - name: fetch connect keytabs 
@@ -174,6 +179,7 @@
   with_items:
     - ktadd -k /etc/security/keytabs/client-{{ tags["region"] }}.keytab  client/as-performance-consumer-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - ktadd -k /etc/security/keytabs/client-{{ tags["region"] }}.keytab  client/as-performance-producer-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/client-{{ tags["region"] }}.keytab  client@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
 - name: fetch client keytabs 
