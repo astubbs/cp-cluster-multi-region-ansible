@@ -7,10 +7,9 @@
 
 - import_playbook: hosts.yml
 
-# nothing in kdc.yml requires anything in common.yml
-- import_playbook: kdc.yml
-
 - import_playbook: common.yml
+
+- import_playbook: kdc.yml
 
 - import_playbook: cp-install.yml
 
