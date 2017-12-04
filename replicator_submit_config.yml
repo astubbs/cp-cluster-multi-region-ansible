@@ -2,11 +2,11 @@
   vars:
     src_zookeeper: "{% for node in hostvars[inventory_hostname]['groups']['aws_tag_role_region=zookeepers-eu-west-1'] %}{{hostvars[node].public.dns}}:2181{% if not loop.last %},{% endif %}{% endfor %}"
     src_kafka: "{% for node in hostvars[inventory_hostname]['groups']['aws_tag_role_region=brokers-eu-west-1'] %}{{hostvars[node].public.dns}}:{{ src_kafka_port }}{% if not loop.last %},{% endif %}{% endfor %}"
-    dest_zookeeper: "{% for node in hostvars[inventory_hostname]['groups']['aws_tag_role_region=zookeepers-eu-central-1'] %}{{node}}:2181{% if not loop.last %},{% endif %}{% endfor %}"
+    dest_zookeeper: "{% for node in hostvars[inventory_hostname]['groups']['aws_tag_role_region=zookeepers-eu-central-1'] %}{{hostvars[node].public.dns}}:2181{% if not loop.last %},{% endif %}{% endfor %}"
     connector_name: "replication-from-ireland"
-    task_count: 10
-    src_security: SASL_SSL # SASL_PLAINTEXT, PLAINTEXT
-    src_kafka_port: "{{ kafka.ports.sasl_ssl }}"
+    task_count: 1
+    src_security: SASL_PLAINTEXT # SASL_PLAINTEXT, PLAINTEXT
+    src_kafka_port: "{{ kafka.ports.sasl_plaintext }}"
     ssl_truststore_location: /home/ubuntu/kafka.client.truststore.jks
     ssl_keystore_location: /home/ubuntu/kafka.server.keystore.jks
     store_password: password123

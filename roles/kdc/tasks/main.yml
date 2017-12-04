@@ -48,6 +48,9 @@
     - addprinc -randkey zookeeper/as-zookeeper-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey zookeeper/as-zookeeper-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey zookeeper/as-zookeeper-2-{{ tags["region"] }}c@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey zookeeper/as-zookeeper-0-eu-west-1a-public@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey zookeeper/as-zookeeper-1-eu-west-1b-public@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey zookeeper/as-zookeeper-2-eu-west-1c-public@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey zkclient/as-zookeeper-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey zkclient/as-zookeeper-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey zkclient/as-zookeeper-2-{{ tags["region"] }}c@{{ tags["region"] | upper }}.CONFLUENT.IO
@@ -77,6 +80,10 @@
     - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zkclient/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zkclient/as-broker-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
     - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zkclient/as-broker-2-{{ tags["region"] }}c@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zookeeper/as-zookeeper-0-eu-west-1a-public@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zookeeper/as-zookeeper-1-eu-west-1b-public@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zookeeper/as-zookeeper-2-eu-west-1c-public@{{ tags["region"] | upper }}.CONFLUENT.IO
+    
   ignore_errors: no
 
 - name: fetch zookeeper keytabs 

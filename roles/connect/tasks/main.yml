@@ -11,7 +11,7 @@
 - name: Upload Connect configuration
   vars:
     host: as-broker-0-{{ tags["region"] }}a
-    broker_port: "{{ kafka.ports.sasl_ssl }}"
+    broker_port: "{{ kafka.ports.sasl_plaintext}}"
     ssl_truststore_location: /home/ubuntu/kafka.client.truststore.jks
     ssl_keystore_location: /home/ubuntu/kafka.server.keystore.jks
     store_password: password123
@@ -144,7 +144,7 @@
   command: >
     env 
     KAFKA_HEAP_OPTS="-Xms512m -Xmx2g"
-    KAFKA_OPTS="-Djava.security.auth.login.config=kafka_connect_jaas.conf -Dlog4j.debug -Dsun.security.krb5.debug=true"
+    KAFKA_OPTS="-Djava.security.auth.login.config=kafka_connect_jaas.conf -Dlog4j.debug"
     cp/confluent-3.3.1/bin/connect-distributed -daemon cp/confluent-3.3.1/etc/kafka/connect-distributed.properties
 #cp/confluent-3.3.1/bin/connect-distributed cp/confluent-3.3.1/etc/kafka/connect-distributed.properties
 
