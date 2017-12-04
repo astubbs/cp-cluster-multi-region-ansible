@@ -127,8 +127,12 @@
     src: "{{ role_path }}/../../secrets/{{item}}"
     dest: /etc/security/keytabs/
   with_items: 
-    - connect-{{ tags["region"] }}.keytab
-    - broker-{{ tags["region"] }}.keytab
+    # - connect-{{ tags["region"] }}.keytab
+    # - broker-{{ tags["region"] }}.keytab
+    - connect-eu-west-1.keytab
+    - broker-eu-west-1.keytab
+    - connect-eu-central-1.keytab
+    - broker-eu-central-1.keytab
   become: yes
 
 - name: upload JAAS file

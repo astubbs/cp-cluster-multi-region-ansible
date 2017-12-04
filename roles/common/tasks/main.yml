@@ -76,10 +76,11 @@
     destfile: /etc/krb5.conf
     marker: "# {mark} ANSIBLE MANAGED BLOCK WEST REALM"
     insertafter: '\[realms\]'
+    # use public dns
     block: |
      EU-WEST-1.CONFLUENT.IO = {
-        kdc = as-c3-0-eu-west-1a:88
-        admin_server = as-c3-0-eu-west-1a:750
+        kdc = {{ hostvars['as-c3-0-eu-west-1a']['public']['dns'] }}:88
+        admin_server = {{ hostvars['as-c3-0-eu-west-1a']['public']['dns'] }}:750
         default_domain = eu-west-1.confluent.io
       }
   become: yes

@@ -74,9 +74,9 @@
             src.kafka.client.id: "kafka-connect-frankfurt-{{ connector_name }}"
             
             src.kafka.security.protocol: "{{ src_security }}"
-            src.kafka.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab" principal="kafka@{{ tags["region"] | upper }}.CONFLUENT.IO";
+            src.kafka.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/brokers-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
             src.kafka.sasl.mechanism: GSSAPI
-            src.sasl.kerberos.service.name: kafka
+            src.kafka.sasl.kerberos.service.name: kafka
 
             src.ssl.keystore.location: "{{ssl_keystore_location}}"
             src.ssl.keystore.password: "{{store_password}}"
@@ -97,8 +97,9 @@
             # delete ?
 
             src.kafka.confluent.monitoring.interceptor.sasl.mechanism: GSSAPI
+            src.kafka.confluent.monitoring.interceptor.sasl.kerberos.service.name: kafka
             src.kafka.confluent.monitoring.interceptor.security.protocol: "{{ src_security }}"
-            src.kafka.confluent.monitoring.interceptor.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab" principal="kafka@{{ tags["region"] | upper }}.CONFLUENT.IO";
+            src.kafka.confluent.monitoring.interceptor.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/brokers-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
         body_format: json
 
     # delete
