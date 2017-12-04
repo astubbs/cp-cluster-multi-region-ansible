@@ -56,7 +56,8 @@
 
       ########### Control Center security for SASL_SSL ###########
       security.protocol=SSL
-      sasl.mechanism=GSSAPI,PLAIN
+      sasl.mechanism=GSSAPI
+      sasl.kerberos.service.name=kafka
       ssl.keystore.location={{ssl_keystore_location}}
       ssl.keystore.password={{store_password}}
       ssl.key.password={{store_password}}
@@ -82,6 +83,15 @@
     dest: /etc/security/keytabs/
   with_items: 
     - c3-{{ tags["region"] }}.keytab
+    - broker-{{ tags["region"] }}.keytab
+  become: yes
+
+- name: create security dir
+  shell: chmod 644 /etc/security/keytabs/{{item}}
+  ignore_errors: yes
+  with_items: 
+    - c3-{{ tags["region"] }}.keytab
+    - broker-{{ tags["region"] }}.keytab
   become: yes
 
 - name: upload JAAS file
@@ -91,7 +101,7 @@
 
 - name: run c3
   command: >
-    env CONTROL_CENTER_OPTS=-Djava.security.auth.login.config=kafka_client_jaas.conf
+    env CONTROL_CENTER_OPTS="-Djava.security.auth.login.config=kafka_client_jaas.conf -Dsun.security.krb5.debug=true"
     cp/confluent-3.3.1/bin/control-center-start -daemon cp/confluent-3.3.1/etc/confluent-control-center/control-center.properties
 
 # C3 takes too long to start to block the playbook. As nothing depends on 
