@@ -43,12 +43,10 @@
   #user: name=ubuntu shell=/bin/bash
   become: yes
 
-# - hostname:
-#     name: "{{node_name}}"
-
-# - command: hostname {{tags['big-nice-name']}} #{{node_name}}
-  # sudo: yes
-
+- name: set nice hostname
+  hostname:
+    name: "{{inventory_hostname}}"
+  become: yes
 
 # this should be dynamic but is hard coded for poc
 - name: configure krb5.conf default realm
