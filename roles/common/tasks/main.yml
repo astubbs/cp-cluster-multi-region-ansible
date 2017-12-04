@@ -20,6 +20,7 @@
     #- git
     - ncdu # handy space utilisation util
     - ntop # better top
+    - iotop
     - lynx # text only web browser, super useful
     - vim # need I say more
     #- s3cmd # interacting with s3 buckets
