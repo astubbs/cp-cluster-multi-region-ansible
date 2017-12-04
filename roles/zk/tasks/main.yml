@@ -1,3 +1,14 @@
+- name: killall java
+  shell: killall java
+  ignore_errors: yes
+  become: yes
+
+- name: Wait for port to disappear # replace with process monitor
+  wait_for:
+    port: "2181"
+    state: absent
+    timeout: 300
+
 - name: base settings
   blockinfile:
     destfile: /home/ubuntu/cp/confluent-3.3.1/etc/kafka/zookeeper.properties
@@ -44,11 +55,6 @@
     dest: /etc/security/keytabs/
   with_items: 
     - zookeeper-{{ tags["region"] }}.keytab
-  become: yes
-
-- name: killall java
-  shell: killall java
-  ignore_errors: yes
   become: yes
 
 - name: upload JAAS file

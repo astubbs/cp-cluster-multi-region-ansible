@@ -5,7 +5,7 @@
   shell: killall java
   ignore_errors: yes
 
-- name: Wait for connect port to disappear # replace with process monitor
+- name: Wait for port to disappear # replace with process monitor
   wait_for:
     port: "9092"
     state: absent
