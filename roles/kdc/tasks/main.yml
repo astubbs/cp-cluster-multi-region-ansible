@@ -90,9 +90,7 @@
     kadmin.local -q "{{item}}";
   become: yes
   with_items:
-    - addprinc -randkey kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
-    - addprinc -randkey kafka/as-broker-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
-    - addprinc -randkey kafka/as-broker-2-{{ tags["region"] }}c@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - addprinc -randkey kafka@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
 - name: create broker keytabs
@@ -100,9 +98,7 @@
     kadmin.local -q "{{item}}";
   become: yes
   with_items:
-    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab  kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
-    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab  kafka/as-broker-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
-    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab  kafka/as-broker-2-{{ tags["region"] }}c@{{ tags["region"] | upper }}.CONFLUENT.IO
+    - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab  kafka@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
 
 - name: fetch broker keytabs 
