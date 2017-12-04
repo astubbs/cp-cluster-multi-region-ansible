@@ -1,6 +1,16 @@
 # - name: get variables
 #   debug: var=cp
 
+- name: killall java
+  shell: killall java
+  ignore_errors: yes
+
+- name: Wait for connect port to disappear # replace with process monitor
+  wait_for:
+    port: "9092"
+    state: absent
+    timeout: 300
+
 - name: create security dir
   shell: mkdir /etc/security/keytabs
   ignore_errors: yes
@@ -101,10 +111,6 @@
         ssl.truststore.password={{kafka.store_password}}
         ssl.key.password={{kafka.store_password}}
         # super.users=User:CN=kafka.example.com,OU=,O=Confluent,L=London,ST=London,C=GB
-
-- name: killall java
-  shell: killall java
-  ignore_errors: yes
 
 - name: run broker
   command: >
