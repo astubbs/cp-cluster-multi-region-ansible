@@ -1,3 +1,4 @@
+# Cohost with C3 for the moment
 - name: Deploy KDC role
   hosts: role=c3
   roles:
