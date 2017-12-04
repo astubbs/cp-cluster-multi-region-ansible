@@ -56,10 +56,10 @@
 #     - default-jre # should use specific version
 #     # - openjdk-8-jre-headless
 
-- name: tools debug
-  blockinfile:
-    dest: cp/confluent-3.3.1/etc/kafka/tools-log4j.properties
-    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
-    # insertafter: "<body>"
-    content: |
-        log4j.rootLogger=DEBUG, stderr
+# - name: tools debug
+#   blockinfile:
+#     dest: cp/confluent-3.3.1/etc/kafka/tools-log4j.properties
+#     marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+#     # insertafter: "<body>"
+#     content: |
+#         log4j.rootLogger=DEBUG, stderr
