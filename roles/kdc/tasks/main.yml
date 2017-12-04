@@ -15,7 +15,7 @@
   template:
     src: kdc.conf
     dest: /etc/krb5kdc/kdc.conf
-  sudo: yes
+  become: yes
 
 
 #krb5.conf should already have been configured in common
@@ -26,24 +26,24 @@
     confluent
     confluent
     EOF
-  sudo: yes
+  become: yes
   ignore_errors: yes
 
 - name: restart kdc
   service:
     name: krb5-kdc
     state: restarted
-  sudo: yes
+  become: yes
 
 - name: create security dir
   shell: mkdir /etc/security/keytabs
   ignore_errors: yes
-  sudo: yes
+  become: yes
 
 - name: create zookeeper principals
   shell: >
     kadmin.local -q "{{item}}";
-  sudo: yes
+  become: yes
   with_items:
     - addprinc -randkey zookeeper/as-zookeeper-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey zookeeper/as-zookeeper-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
@@ -63,7 +63,7 @@
 - name: create zookeeper keytabs
   shell: >
     kadmin.local -q "{{item}}";
-  sudo: yes
+  become: yes
   with_items:
     - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zookeeper/as-zookeeper-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - ktadd -k /etc/security/keytabs/zookeeper-{{ tags["region"] }}.keytab  zookeeper/as-zookeeper-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
@@ -83,12 +83,12 @@
     flat: yes
   with_items: 
     - zookeeper-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 - name: create broker principals
   shell: >
     kadmin.local -q "{{item}}";
-  sudo: yes
+  become: yes
   with_items:
     - addprinc -randkey kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - addprinc -randkey kafka/as-broker-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
@@ -98,7 +98,7 @@
 - name: create broker keytabs
   shell: >
     kadmin.local -q "{{item}}";
-  sudo: yes
+  become: yes
   with_items:
     - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab  kafka/as-broker-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - ktadd -k /etc/security/keytabs/broker-{{ tags["region"] }}.keytab  kafka/as-broker-1-{{ tags["region"] }}b@{{ tags["region"] | upper }}.CONFLUENT.IO
@@ -112,12 +112,12 @@
     flat: yes
   with_items: 
     - broker-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 - name: create c3 keytabs
   shell: >
     kadmin.local -q "{{item}}";
-  sudo: yes
+  become: yes
   with_items:
     - ktadd -k /etc/security/keytabs/c3-{{ tags["region"] }}.keytab  c3/as-c3-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
@@ -129,12 +129,12 @@
     flat: yes
   with_items: 
     - c3-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 - name: create connect keytabs
   shell: >
     kadmin.local -q "{{item}}";
-  sudo: yes
+  become: yes
   with_items:
     - ktadd -k /etc/security/keytabs/connect-{{ tags["region"] }}.keytab  connect/as-connect-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
   ignore_errors: no
@@ -146,12 +146,12 @@
     flat: yes
   with_items: 
     - connect-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 - name: create client keytabs
   shell: >
     kadmin.local -q "{{item}}";
-  sudo: yes
+  become: yes
   with_items:
     - ktadd -k /etc/security/keytabs/client-{{ tags["region"] }}.keytab  client/as-performance-consumer-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
     - ktadd -k /etc/security/keytabs/client-{{ tags["region"] }}.keytab  client/as-performance-producer-0-{{ tags["region"] }}a@{{ tags["region"] | upper }}.CONFLUENT.IO
@@ -164,7 +164,7 @@
     flat: yes
   with_items: 
     - client-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 
 

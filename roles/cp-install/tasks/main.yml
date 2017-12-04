@@ -29,7 +29,7 @@
   file: path=/home/ubuntu/cp state=directory
 
 - name: Unarchive source
-  sudo: yes
+  #sudo: yes
   unarchive:
     src="/home/ubuntu/confluent-3.3.1-2.11.tar.gz"
     dest="/home/ubuntu/cp"

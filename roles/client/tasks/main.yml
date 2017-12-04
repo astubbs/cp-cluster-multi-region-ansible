@@ -15,7 +15,7 @@
 - name: create security dir
   shell: mkdir /etc/security/keytabs
   ignore_errors: yes
-  sudo: yes
+  become: yes
 
 - name: copy keytabs
   copy: 
@@ -23,7 +23,7 @@
     dest: /etc/security/keytabs/
   with_items: 
     - client-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 
 - name: upload consumer security file

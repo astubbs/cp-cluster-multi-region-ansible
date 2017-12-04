@@ -3,8 +3,12 @@
 - name: Entire fleet
   hosts: all
   strategy: free
+  any_errors_fatal: true
 
 - import_playbook: hosts.yml
+
+# nothing in kdc.yml requires anything in common.yml
+- import_playbook: kdc.yml
 
 - import_playbook: common.yml
 

@@ -32,9 +32,11 @@
 #     backup: yes
 
 - name: create security dir
-  shell: mkdir /etc/security/keytabs
-  ignore_errors: yes
-  sudo: yes
+  file:
+      path: /etc/security/keytabs
+      state: directory
+  become: yes
+  # ignore_errors: yes
 
 - name: copy keytabs
   copy: 
@@ -42,7 +44,7 @@
     dest: /etc/security/keytabs/
   with_items: 
     - zookeeper-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 - name: killall java
   shell: killall java
@@ -53,7 +55,6 @@
   template:
     src: zookeeper_jaas.conf.j2
     dest: ~/zookeeper_jaas.conf
-
 
 # Simply passing the JAAS config doesn't mean it's required
 - name: run zk

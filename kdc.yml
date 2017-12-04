@@ -1,4 +1,5 @@
-- name: Deploy common role
-  hosts: [aws_tag_role=c3]
+# Cohost with C3 for the moment
+- name: Deploy KDC role
+  hosts: role=c3
   roles:
      - kdc

@@ -54,7 +54,7 @@
     destfile: /etc/krb5.conf
     regexp: 'default_realm = (.*)$'
     replace: 'default_realm = {{ tags["region"] | upper}}.CONFLUENT.IO'
-  sudo: yes
+  become: yes
 
 - name: configure krb5.conf realm
   blockinfile:
@@ -67,7 +67,7 @@
         admin_server = as-c3-0-eu-central-1a:750
         default_domain = eu-central-1.confluent.io
       }
-  sudo: yes
+  become: yes
 
 # this should be dynamic but is hard coded for poc
 - name: configure krb5.conf alternate realm
@@ -81,7 +81,7 @@
         admin_server = as-c3-0-eu-west-1a:750
         default_domain = eu-west-1.confluent.io
       }
-  sudo: yes
+  become: yes
 
 - name: configure krb5.conf domain
   blockinfile:
@@ -93,4 +93,4 @@
       eu-west-1.confluent.io = EU-WEST-1.CONFLUENT.IO
       .eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
       eu-central-1.confluent.io = EU-CENTRAL-1.CONFLUENT.IO
-  sudo: yes
+  become: yes
