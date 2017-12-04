@@ -74,7 +74,7 @@
             src.kafka.client.id: "kafka-connect-frankfurt-{{ connector_name }}"
             
             src.kafka.security.protocol: "{{ src_security }}"
-            src.kafka.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/brokers-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
+            src.kafka.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
             src.kafka.sasl.mechanism: GSSAPI
             src.kafka.sasl.kerberos.service.name: kafka
 
@@ -92,14 +92,14 @@
             dest.zookeeper.connect: "{{ dest_zookeeper }}"
 
             # delete?
-            src.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
-            dest.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
+            # src.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
+            # dest.zookeeper.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
             # delete ?
 
             src.kafka.confluent.monitoring.interceptor.sasl.mechanism: GSSAPI
             src.kafka.confluent.monitoring.interceptor.sasl.kerberos.service.name: kafka
             src.kafka.confluent.monitoring.interceptor.security.protocol: "{{ src_security }}"
-            src.kafka.confluent.monitoring.interceptor.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/brokers-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
+            src.kafka.confluent.monitoring.interceptor.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
         body_format: json
 
     # delete
