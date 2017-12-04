@@ -1,0 +1,19 @@
+- name: Deploy common role
+  hosts: role=c3
+  tasks:
+
+  - name: killall java
+    shell: killall java
+    ignore_errors: yes
+
+  - name: Wait for port to disappear # replace with process monitor
+    wait_for:
+      port: "9021"
+      state: absent
+      timeout: 300
+
+  - name: run c3
+    command: >
+      env
+      CONTROL_CENTER_OPTS=-Djava.security.auth.login.config=kafka_client_jaas.conf
+      cp/confluent-3.3.1/bin/control-center-start -daemon cp/confluent-3.3.1/etc/confluent-control-center/control-center.properties
