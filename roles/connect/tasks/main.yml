@@ -82,7 +82,7 @@
 - name: create security dir
   shell: mkdir /etc/security/keytabs
   ignore_errors: yes
-  sudo: yes
+  become: yes
 
 - name: copy keytabs
   copy: 
@@ -91,7 +91,7 @@
   with_items: 
     - connect-{{ tags["region"] }}.keytab
     - broker-{{ tags["region"] }}.keytab
-  sudo: yes
+  become: yes
 
 - name: upload JAAS file
   template:

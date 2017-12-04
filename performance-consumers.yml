@@ -1,13 +1,15 @@
 - name: performance consumer
-  hosts: [aws_tag_role=performance-consumer]
+  hosts: role=performance-consumer
   roles:
      - client
   strategy: free
   tasks:
+
     - name: killall java
       shell: killall java
       ignore_errors: yes
       become: true
+
     - name: run consumer client
       ignore_errors: no
       shell: >
@@ -15,7 +17,7 @@
         KAFKA_OPTS=-Djava.security.auth.login.config=kafka_client_jaas.pref
         cp/confluent-3.3.1/bin/kafka-consumer-perf-test 
         --group performance-consumer-test 
-        --topic ireland_r.perf-10
+        --topic "r.*,ireland.*"
         --broker-list as-broker-0-eu-central-1a-public:9092 
         --messages 100000000000000 
         --show-detailed-stats 

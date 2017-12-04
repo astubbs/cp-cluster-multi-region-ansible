@@ -74,7 +74,11 @@
 - name: create security dir
   shell: mkdir /etc/security/keytabs
   ignore_errors: yes
+<<<<<<< HEAD
   sudo: yes
+=======
+  become: yes
+>>>>>>> 98c07c45276d395da72fab820eae9dc2ef26821f
 
 - name: copy keytabs
   copy: 
@@ -82,7 +86,11 @@
     dest: /etc/security/keytabs/
   with_items: 
     - c3-{{ tags["region"] }}.keytab
+<<<<<<< HEAD
   sudo: yes
+=======
+  become: yes
+>>>>>>> 98c07c45276d395da72fab820eae9dc2ef26821f
 
 - name: upload JAAS file
   template:
