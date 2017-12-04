@@ -23,15 +23,3 @@ KafkaClient {
     username="{{zk_broker.login}}"
     password="{{zk_broker.secret}}";
 };
-Client {
-    com.sun.security.auth.module.Krb5LoginModule required
-    useKeyTab=true
-    storeKey=true
-    keyTab="/etc/security/keytabs/broker-{{ tags["region"] }}.keytab"
-    principal="kafka@{{ tags["region"] | upper }}.CONFLUENT.IO";
-
-    org.apache.kafka.common.security.plain.PlainLoginModule required
-    username="{{zk_broker.login}}"
-    password="{{zk_broker.secret}}";
-};
-

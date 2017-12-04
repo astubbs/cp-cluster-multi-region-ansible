@@ -92,7 +92,8 @@
         
         sasl.enabled.mechanisms=GSSAPI,PLAIN
         sasl.kerberos.service.name=kafka
-        zookeeper.set.acl=true
+        
+        zookeeper.set.acl=false
 
         ############# Confluent Metrics Reporter Security ##############
         confluent.metrics.reporter.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="broker" password="broker-secret";
