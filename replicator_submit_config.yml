@@ -78,11 +78,11 @@
             src.kafka.sasl.mechanism: GSSAPI
             src.kafka.sasl.kerberos.service.name: kafka
 
-            src.ssl.keystore.location: "{{ssl_keystore_location}}"
-            src.ssl.keystore.password: "{{store_password}}"
-            src.ssl.key.password: "{{store_password}}"
-            src.ssl.truststore.location: "{{ssl_truststore_location}}"
-            src.ssl.truststore.password: "{{store_password}}"
+            src.kafka.ssl.keystore.location: "{{ssl_keystore_location}}"
+            src.kafka.ssl.keystore.password: "{{store_password}}"
+            src.kafka.ssl.key.password: "{{store_password}}"
+            src.kafka.ssl.truststore.location: "{{ssl_truststore_location}}"
+            src.kafka.ssl.truststore.password: "{{store_password}}"
 
             src.kafka.send.buffer.bytes: 2097152
             src.consumer.interceptor.classes: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
@@ -100,6 +100,11 @@
             src.kafka.confluent.monitoring.interceptor.sasl.kerberos.service.name: kafka
             src.kafka.confluent.monitoring.interceptor.security.protocol: "{{ src_security }}"
             src.kafka.confluent.monitoring.interceptor.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/etc/security/keytabs/broker-eu-west-1.keytab" principal="kafka@EU-WEST-1.CONFLUENT.IO";
+            src.kafka.confluent.monitoring.interceptor.ssl.keystore.location: "{{ssl_keystore_location}}"
+            src.kafka.confluent.monitoring.interceptor.ssl.keystore.password: "{{store_password}}"
+            src.kafka.confluent.monitoring.interceptor.ssl.key.password: "{{store_password}}"
+            src.kafka.confluent.monitoring.interceptor.ssl.truststore.location: "{{ssl_truststore_location}}"
+            src.kafka.confluent.monitoring.interceptor.ssl.truststore.password: "{{store_password}}"
         body_format: json
 
     # delete
