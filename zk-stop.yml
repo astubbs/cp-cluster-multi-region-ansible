@@ -1,0 +1,9 @@
+- name: Deploy common role
+  hosts: role=zookeeper
+  strategy: free
+  tasks:
+
+  - name: killall java
+    shell: killall java
+    ignore_errors: yes
+    become: yes
