@@ -1,0 +1,10 @@
+- name: Monitored instances
+  hosts: all
+  roles: 
+     - docker
+     - monitoring-docker
+
+- name: Monitoring server
+  hosts: role=monitoring-node
+  roles:
+    - monitoring-server

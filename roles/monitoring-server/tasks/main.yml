@@ -1,0 +1,30 @@
+- name: Elasticsearch
+  docker_container:
+    name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.0
+    restart: on-failure
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      xpack.security.enabled: "false"
+
+- naeme: Kibana
+  docker_container:
+    name: kibana
+    image: docker.elastic.co/kibana/kibana:5.5.2
+    restart: on-failure
+    ports:
+      - "5601:5601"
+    environment:
+      xpack.security.enabled: "false"
+    depends_on:
+      - elasticsearch
+
+# - docker_container:
+#   name: kibana_index_pattern
+#   image: tutum/curl
+#   restart: on-failure
+#   # command: bash -c "sleep 30 ; curl 'http://kibana:5601/es_admin/.kibana/index-pattern/logstash-*/_create' -H 'kbn-version: 5.5.2' -H 'content-type: application/json' --data-binary '{\"title\":\"logstash-*\",\"timeFieldName\":\"@timestamp\",\"notExpandable\":true}'"
+#   depends_on:
+#     - kibana
