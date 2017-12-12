@@ -2,4 +2,5 @@
 *.retry
 *.pyc
 *.keytab
-
+inventory.json
+public-hosts
