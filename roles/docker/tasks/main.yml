@@ -7,7 +7,7 @@
     update_cache: yes
   with_items:
     - docker
-    - docker-engine 
+    - docker-engine
     - docker.io
 
 - name: Install packages to allow apt to use a repository over HTTPS
@@ -41,9 +41,18 @@
     state: present
     update_cache: yes
 
-# - name: Install docker-compose
-#   pip: name=docker-compose
-#   sudo: yes
+- name: Install pip to install docker-compose
+  become: true
+  apt:
+    pkg: "{{ item }}"
+    state: present
+    update_cache: no # done above
+  with_items:
+    - python-pip
+
+- name: Install docker-compose
+  pip: name=docker-compose
+  become: yes
 
 - name: 'After docker role applied, add user to docker group'
   become: yes
