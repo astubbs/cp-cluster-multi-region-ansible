@@ -2,36 +2,37 @@
   docker_container:
     name: logstash
     image: logstash
-    restart: on-failure
+    restart_policy: on-failure
     command: -e "input { udp { port => 5000 codec => json } } filter { if [docker][image] =~ /^logstash/ {  drop { } } } output { elasticsearch { hosts => "elasticsearch" } }"
-    depends_on:
-      - elasticsearch
+    # depends_on:
+    #   - elasticsearch
 
 - name: Logspout
   docker_container:
     name: logspout
     image: bekt/logspout-logstash
-    restart: on-failure
+    restart_policy: on-failure
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
-    environment:
-      ROUTE_URIS: logstash://logstash:5000
-    depends_on:
-      - logstash
+    # environment:
+    #   ROUTE_URIS: logstash://logstash:5000
+    # depends_on:
+    #   - logstash
 
 - name: Metricbeat
   docker_container:
     name: metricbeat
     image: docker.elastic.co/beats/metricbeat:5.6.3
+    restart_policy: on-failure
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
-    depends_on:
-      - elasticsearch
+    # depends_on:
+    #   - elasticsearch
 
 - name: Metricbeat dashboard setup
   docker_container:
     name: metricbeat-dashboard-setup
     image: docker.elastic.co/beats/metricbeat:5.6.3
     command: bash -c 'sleep 30; ./scripts/import_dashboards -es http://elasticsearch:9200'
-    depends_on:
-      - elasticsearch
+    # depends_on:
+    #   - elasticsearch

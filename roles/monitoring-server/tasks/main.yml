@@ -2,24 +2,24 @@
   docker_container:
     name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:5.6.0
-    restart: on-failure
+    restart_policy: on-failure
     ports:
       - "9200:9200"
       - "9300:9300"
-    environment:
-      xpack.security.enabled: "false"
+    # environment:
+    #   xpack.security.enabled: "false"
 
-- naeme: Kibana
+- name: Kibana
   docker_container:
     name: kibana
     image: docker.elastic.co/kibana/kibana:5.5.2
-    restart: on-failure
+    restart_policy: on-failure
     ports:
       - "5601:5601"
-    environment:
-      xpack.security.enabled: "false"
-    depends_on:
-      - elasticsearch
+    # environment:
+    #   xpack.security.enabled: "false"
+    # depends_on:
+    #   - elasticsearch
 
 # - docker_container:
 #   name: kibana_index_pattern
