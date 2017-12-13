@@ -1,38 +1,49 @@
+- name: Set host locations
+  vars:
+    monitoring_node: as-monitoring-node-0-{{ tags.region }}a
+    monitoring_hostname: "{{hostvars[monitoring_node].public.dns}}"
+    monitoring_host_ip: "{{hostvars[monitoring_node].private.ip}}"
+  set_fact:
+    elasticsearch_node: "{{monitoring_node}}"
+    elasticsearch_host: "{{monitoring_hostname}}"
+    logstash_node: "{{monitoring_node}}"
+    logstash_host: "{{monitoring_hostname}}"
+
 - name: Logstash
   docker_container:
     name: logstash
-    image: logstash
+    # image: logstash
+    image: docker.elastic.co/logstash/logstash:5.5.3
     restart_policy: on-failure
-    command: -e "input { udp { port => 5000 codec => json } } filter { if [docker][image] =~ /^logstash/ {  drop { } } } output { elasticsearch { hosts => "elasticsearch" } }"
-    # depends_on:
-    #   - elasticsearch
+    network_mode: host
+    # command: -e "input { udp { port => 5000 codec => json } } filter { if [docker][image] =~ /^logstash/ {  drop { } } } output { elasticsearch { hosts => "{{elasticsearch_host}}" } } --config.debug --log.level=debug"
+    env:
+      config.string: input { udp { port => 5000 codec => json } } filter { if [docker][image] =~ /^logstash/ {  drop { } } } output { elasticsearch { hosts => "{{elasticsearch_host}}" } }
+      # config.debug: true
+      # log.level: debug
 
 - name: Logspout
   docker_container:
     name: logspout
     image: bekt/logspout-logstash
     restart_policy: on-failure
+    network_mode: host
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
-    # environment:
-    #   ROUTE_URIS: logstash://logstash:5000
-    # depends_on:
-    #   - logstash
+    env:
+      ROUTE_URIS: logstash://{{logstash_host}}:5000
 
 - name: Metricbeat
   docker_container:
     name: metricbeat
     image: docker.elastic.co/beats/metricbeat:5.6.3
     restart_policy: on-failure
+    network_mode: host
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
-    # depends_on:
-    #   - elasticsearch
 
 - name: Metricbeat dashboard setup
   docker_container:
     name: metricbeat-dashboard-setup
     image: docker.elastic.co/beats/metricbeat:5.6.3
-    command: bash -c 'sleep 30; ./scripts/import_dashboards -es http://elasticsearch:9200'
-    # depends_on:
-    #   - elasticsearch
+    command: bash -c 'sleep 30; ./scripts/import_dashboards -es http://{{elasticsearch_host}}:9200'

@@ -1,6 +1,6 @@
 - name: Monitored instances
   hosts: all
-  roles: 
+  roles:
      - docker
      - monitoring-docker
 
